@@ -69,4 +69,14 @@ o.get_invoice("gYN9QyrAXQgR8cKR")
 header("Retrieve Upcoming")
 o.retrieve_upcoming("BTMvkWxEccYhTRmZ")
 
+header("Create Subscription")
+o.create_subscription("LP3AYZcMEgh5WwkR", "eaBB93GA6isQZjoX",  "2022-12-01")
 
+header("List Subscriptions")
+o.list_subscriptions()
+
+header("Cancel Subscription")
+o.cancel_subscription("mPkuo4atfnK6AMrs", "immediate")
+
+header("Retrieve Plan")
+o.retrieve_plan("MZogb5HsiNpPDXBG")

@@ -1,9 +1,21 @@
-import requests
-import json
 import datetime
+import json
 import uuid
+import requests
+
 
 class Orb:
+    """
+    Simple API interface for Orb - works for all aspects of the published REST API.
+
+    Attributes
+    ----------
+    api_key : str
+        the api key for the Orb account
+
+    Methods
+    -------
+    """
     __slots__ = 'api_key', 'debug'
 
     @property
@@ -20,17 +32,19 @@ class Orb:
 
     def log_event(self, customer_id, eventname, idempotency_key=__gen_idem(), props={}, timestamp=datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")):
         endpoint = "/ingest"
-        data = {"events":[{"idempotency_key": idempotency_key, "customer_id":customer_id, "event_name":eventname, "timestamp":timestamp, "properties":props}]}
+        data = {"events": [{"idempotency_key": idempotency_key, "customer_id": customer_id,
+                            "event_name": eventname, "timestamp": timestamp, "properties": props}]}
         return self.__docall(endpoint, data)
 
     def search_event(self, eventids):
         endpoint = "/events/search"
-        data = {"event_ids":eventids}
+        data = {"event_ids": eventids}
         return self.__docall(endpoint, data)
 
     def amend_event(self, eventid, customer_id, eventname, timestamp, props={}):
         endpoint = f"/events/{eventid}"
-        data = {"customer_id":customer_id, "event_name":eventname, "timestamp":timestamp, "properties":props}
+        data = {"customer_id": customer_id, "event_name": eventname,
+                "timestamp": timestamp, "properties": props}
         return self.__docall(endpoint, data, 'put')
 
     def deprecate_event(self, eventid):
@@ -43,7 +57,7 @@ class Orb:
 
     def create_customer(self, name, email, **kwargs):
         endpoint = "/customers"
-        data = {"name":name, "email":email} 
+        data = {"name": name, "email": email}
         data.update(kwargs)
         return self.__docall(endpoint, data, 'post')
 
@@ -53,7 +67,7 @@ class Orb:
 
     def update_customer(self, customer_id, name, email, **kwargs):
         endpoint = f"/customers/{customer_id}"
-        data = {"name":name, "email":email} 
+        data = {"name": name, "email": email}
         data.update(kwargs)
         return self.__docall(endpoint, data, 'put')
 
@@ -61,7 +75,7 @@ class Orb:
         endpoint = f"/customers/{customer_id}/costs"
         return self.__docall(endpoint, {}, 'get')
 
-#External Customer APIs
+# External Customer APIs
     def view_external_customer(self, external_customer_id):
         endpoint = f"/customers/external_customer_id/{external_customer_id}"
         return self.__docall(endpoint, {}, 'get')
@@ -74,7 +88,7 @@ class Orb:
         endpoint = "/customers/" + customer_id + "/balance_transactions"
         return self.__docall(endpoint, {}, 'get')
 
-#Credit APIs
+# Credit APIs
     def retrieve_credit_balance(self, customer_id):
         endpoint = "/customers/" + customer_id + "/credits"
         return self.__docall(endpoint, {}, 'get')
@@ -85,11 +99,11 @@ class Orb:
 
     def credits_ledger_add(self, customer_id, amount, ledger_type, **kwargs):
         endpoint = "/customers/" + customer_id + "/credits/ledger_entry"
-        data = {"amount":amount, "entry_type":ledger_type}
+        data = {"amount": amount, "entry_type": ledger_type}
         data.update(kwargs)
         return self.__docall(endpoint, data)
 
-#Invoices
+# Invoices
     def list_invoices(self):
         endpoint = "/invoices"
         return self.__docall(endpoint, {}, 'get')
@@ -101,12 +115,46 @@ class Orb:
     def retrieve_upcoming(self, subscription_id):
         endpoint = f"/invoices/upcoming?subscription_id={subscription_id}"
         return self.__docall(endpoint, {}, 'get')
+# Subscriptions
+
+    def create_subscription(self, customer_id, plan_id, start_date, **kwargs):
+        endpoint = f"/subscriptions"
+        data = {"customer_id": customer_id,
+                "plan_id": plan_id, "start_date": start_date}
+        data.update(kwargs)
+        return self.__docall(endpoint, data, 'post')
+
+    def list_subscriptions(self):
+        endpoint = "/subscriptions"
+        return self.__docall(endpoint, {}, 'get')
+
+    def cancel_subscription(self, subscription_id, cancel_option):
+        if cancel_option != "immediate" and cancel_option != "end_of_subscription_term":
+            raise ValueError(
+                "cancel_option should be one of \"immediate\" or \"end_of_subscription_term\"")
+        endpoint = f"/subscriptions/{subscription_id}/cancel"
+        return self.__docall(endpoint, {"cancel_option": cancel_option}, 'post')
+#not tested
+
+    def retrieve_plan(self, plan_id):
+        endpoint = f"/plans/{plan_id}"
+        return self.__docall(endpoint, {}, 'get')
+
+#not tested
+    def retrieve_plan_with_external_id(self, external_plan_id):
+        endpoint = f"/plans/external_plan_id/{external_plan_id}"
+        return self.__docall(endpoint, {}, 'get')
 
 
-#Misc APIs
+# Misc APIs
+
+
     def check_availability(self):
         endpoint = "/ping"
         return self.__docall(endpoint, {}, 'get')
+
+    def __eq__(self, other):
+        return True if self.api_key == other.api_key else False
 
 # Start Internal
     def __builduri(self, endpoint):
@@ -117,13 +165,17 @@ class Orb:
         print("URI: ", uri)
         jsonblob = json.dumps(payload)
         print("VERB: ", http_verb, "Payload: ", jsonblob)
-        headers = {'Content-Type': 'application/json', 'Authorization':'Bearer ' + self.api_key}
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': 'Bearer ' + self.api_key}
         response = requests.request(http_verb, uri,
-            headers=headers,
-            data=jsonblob
-        )
+                                    headers=headers,
+                                    data=jsonblob
+                                    )
         print(response.content)
         return json.loads(response.content)
+
+    def __repr__(self):
+        return f"Orb API Object:\n\t{BOLD}endpoint:{END}{self.endpoint_url}\n\t{BOLD}apikey:{END}{self.api_key}"
 
     def __str__(self):
         BOLD = "\033[1m"

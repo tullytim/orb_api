@@ -12,6 +12,8 @@ class Orb:
     ----------
     api_key : str
         the api key for the Orb account
+    debug : bool
+        indicates whether we are in debug mode
 
     Methods
     -------
@@ -116,6 +118,9 @@ class Orb:
         endpoint = f"/invoices/upcoming?subscription_id={subscription_id}"
         return self.__docall(endpoint, {}, 'get')
 # Subscriptions
+    def list_subscriptions(self):
+        endpoint = "/subscriptions"
+        return self.__docall(endpoint, {}, 'get')
 
     def create_subscription(self, customer_id, plan_id, start_date, **kwargs):
         endpoint = f"/subscriptions"
@@ -124,8 +129,12 @@ class Orb:
         data.update(kwargs)
         return self.__docall(endpoint, data, 'post')
 
-    def list_subscriptions(self):
-        endpoint = "/subscriptions"
+    def view_subscription_usage(self, subscription_id):
+        endpoint = f"/subscriptions/{subscription_id}/usage"
+        return self.__docall(endpoint, {}, 'get')
+
+    def view_subscription_costs(self, subscription_id):
+        endpoint = f"/subscriptions/{subscription_id}/costs"
         return self.__docall(endpoint, {}, 'get')
 
     def cancel_subscription(self, subscription_id, cancel_option):
@@ -134,10 +143,31 @@ class Orb:
                 "cancel_option should be one of \"immediate\" or \"end_of_subscription_term\"")
         endpoint = f"/subscriptions/{subscription_id}/cancel"
         return self.__docall(endpoint, {"cancel_option": cancel_option}, 'post')
-#not tested
 
+#untested
+    def unschedule_pending_plan_changes(self, subscription_id):
+        endpoint = f"/subscriptions/{subscription_id}/unschedule_pending_plan_changes"
+        return self.__docall(endpoint, {}, 'post')
+
+    def unschedule_pending_cancellation(self, subscription_id):
+        endpoint = f"/subscriptions/{subscription_id}/unschedule_cancellation"
+        return self.__docall(endpoint, {}, 'post')
+
+    def view_subscription_schedule(self, subscription_id):
+        endpoint = f"/subscriptions/{subscription_id}/schedule"
+        return self.__docall(endpoint, {}, 'get')
+
+    def retrieve_subscription(self, subscription_id):
+        endpoint = f"/subscriptions/{subscription_id}"
+        return self.__docall(endpoint, {}, 'get')
+
+#Plans
     def retrieve_plan(self, plan_id):
         endpoint = f"/plans/{plan_id}"
+        return self.__docall(endpoint, {}, 'get')
+
+    def list_plans(self):
+        endpoint = f"/plans/"
         return self.__docall(endpoint, {}, 'get')
 
 #not tested

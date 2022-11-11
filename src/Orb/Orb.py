@@ -206,16 +206,16 @@ class Orb:
 
     def __docall(self, endpoint, payload, http_verb='post'):
         uri = self.__builduri(endpoint)
-        print("URI: ", uri)
+        if self.debug: print("URI: ", uri) 
         jsonblob = json.dumps(payload)
-        print("VERB: ", http_verb, "Payload: ", jsonblob)
+        if self.debug: print("HTTP Verb:", http_verb, "Payload:", jsonblob)
         headers = {'Content-Type': 'application/json',
                    'Authorization': 'Bearer ' + self.api_key}
         response = requests.request(http_verb, uri,
                                     headers=headers,
                                     data=jsonblob
                                     )
-        print(response.content)
+        if self.debug: print(response.content)
         return json.loads(response.content)
 
     def __repr__(self):

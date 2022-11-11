@@ -118,6 +118,7 @@ class Orb:
         endpoint = f"/invoices/upcoming?subscription_id={subscription_id}"
         return self.__docall(endpoint, {}, 'get')
 # Subscriptions
+
     def list_subscriptions(self):
         endpoint = "/subscriptions"
         return self.__docall(endpoint, {}, 'get')
@@ -144,7 +145,7 @@ class Orb:
         endpoint = f"/subscriptions/{subscription_id}/cancel"
         return self.__docall(endpoint, {"cancel_option": cancel_option}, 'post')
 
-#untested
+# untested
     def unschedule_pending_plan_changes(self, subscription_id):
         endpoint = f"/subscriptions/{subscription_id}/unschedule_pending_plan_changes"
         return self.__docall(endpoint, {}, 'post')
@@ -161,7 +162,7 @@ class Orb:
         endpoint = f"/subscriptions/{subscription_id}"
         return self.__docall(endpoint, {}, 'get')
 
-#Plans
+# Plans
     def retrieve_plan(self, plan_id):
         endpoint = f"/plans/{plan_id}"
         return self.__docall(endpoint, {}, 'get')
@@ -177,7 +178,6 @@ class Orb:
 
 
 # Misc APIs
-
 
     def check_availability(self):
         endpoint = "/ping"
@@ -205,7 +205,7 @@ class Orb:
         return json.loads(response.content)
 
     def __repr__(self):
-        return f"Orb API Object:\n\t{BOLD}endpoint:{END}{self.endpoint_url}\n\t{BOLD}apikey:{END}{self.api_key}"
+          return f"Orb(\"{self.api_key}\", {self.debug})"
 
     def __str__(self):
         BOLD = "\033[1m"

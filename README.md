@@ -22,3 +22,28 @@ The module is incredible easy to use.
 o = Orb(<YOUR_API_KEY_HERE>, True)
 rv = o.log_event(CUSTOMER, "asdf", props={"foo": "bar"})
 ```
+
+## Description
+An instance of the Orb object simply encapsulates connectivity and respective metadata for an account with a given API.  Beyond that, the instance provides access to instance methods, ie, no static methods on the class. 
+
+## Third Party Libraries and Dependencies
+
+The following libraries will be installed when you install the client library:
+* datetime
+* json
+* uuid
+* requests
+* termcolor 
+
+## License
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

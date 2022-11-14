@@ -1,5 +1,8 @@
 <img src="icon.png" align="right" />
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)  
+
+
 # Orb
 
 orb_api is a simple [Orb](https://www.withorb.com) API for all of the CRUD operations in the orb product.

@@ -42,7 +42,6 @@ class Orb:
     def __init__(self, apikey, debug=False):
         self.api_key = apikey
         self.debug = debug
-        print(type(self.debug))
 
     def __gen_idem():
         return str(uuid.uuid4())
@@ -208,7 +207,14 @@ class Orb:
         return colored(code, 'red')
 
     def __builduri(self, endpoint):
-        return "".join([self.endpoint_url, endpoint, "?debug=true" if self.debug == True else ""])
+        uri = "".join([self.endpoint_url, endpoint])
+        if(not self.debug):
+            return uri
+        if("?" in endpoint):
+            uri = f"{uri}&debug=true"
+        else:
+            uri = f"{uri}?debug=true"
+        return uri
 
     def __docall(self, endpoint, payload, http_verb='post'):
         uri = self.__builduri(endpoint)
@@ -226,7 +232,7 @@ class Orb:
         if self.debug:
             print(
                 f"Got {self.__http_term_colored(response.status_code)}: {response.content}")
-        return (response.status_code == 200, json.loads(response.content), response.status_code)
+        return (response.status_code >= 200 and response.status_code < 300, json.loads(response.content), response.status_code)
 
     def __repr__(self):
         return f"Orb(\"{self.api_key}\", {self.debug})"

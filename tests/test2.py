@@ -1,5 +1,7 @@
 import sys
 import unittest
+import string
+import random
 
 sys.path.append('/home/ubuntu/Orb/src/')
 
@@ -18,8 +20,6 @@ event_id_test = "ed085e39-d65f-48ac-9b8f-b0ba0195cfb5"
 EXTERN_CUSTOMER_ID = "EXTERN_CUSTOMER_ID1234"
 
 class TestOrb(unittest.TestCase):
-    def setUp(self):
-        pass
 
     def test_foo(self):
         self.assertEqual(1, 1, "Should be 1")
@@ -46,12 +46,6 @@ class TestOrb(unittest.TestCase):
 
     def test_deprecate_event(self):
         rv = o.deprecate_event("87c4b589-78f2-4a0d-9609-fafd7380fd3c")
-        self.assertEqual(True, rv[0])
-
-    @unittest.expectedFailure
-    def test_create_customer(self):
-        rv = o.create_customer("extern cust", "stripe2@yahoo.com",  external_customer_id=EXTERN_CUSTOMER_ID, shipping_address={
-                               "city": "string", "country": "US", "line1": "1234 main st", "line2": "string", "postal_code": "string", "state": "string"})
         self.assertEqual(True, rv[0])
 
     def test_get_customer(self):
@@ -104,20 +98,9 @@ class TestOrb(unittest.TestCase):
     def test_retrieve_upcoming(self):
         rv = o.retrieve_upcoming("BTMvkWxEccYhTRmZ")
         self.assertEqual(True, rv[0])
-
-    @unittest.expectedFailure
-    def test_create_subscription(self):
-        rv = o.create_subscription(
-            "LP3AYZcMEgh5WwkR", "eaBB93GA6isQZjoX",  "2022-12-01")
-        self.assertEqual(True, rv[0])
-
+        
     def test_list_subscriptions(self):
         rv = o.list_subscriptions()
-        self.assertEqual(True, rv[0])
-
-    @unittest.expectedFailure
-    def test_cancel_subscription(self):
-        rv = o.cancel_subscription("mPkuo4atfnK6AMrs", "immediate")
         self.assertEqual(True, rv[0])
 
     def test_retrieve_plan(self):
@@ -144,7 +127,62 @@ class TestOrb(unittest.TestCase):
         rv = o.list_plans()
         self.assertEqual(True, rv[0])
 
+class CustomerSubscriptionTests(unittest.TestCase):
+    @classmethod
+    def __make_rand(cls):
+        return ''.join(random.choices(string.ascii_lowercase + string.digits, k=cls.random_k))
+    def setUp(self):
+        pass
+    @classmethod
+    def setUpClass(cls):
+        print("Setting up customer tests")
+        cls.o = Orb(apikey)
+        cls.random_k = 12
+        cls.customer_name = cls.__make_rand()
+        cls.external_customer_id = cls.__make_rand()
+        cls.subscription_id = cls.__make_rand()
+        cls.customer_id =''
+        pass
+    def tearDown(self):
+        pass
+    
+    #lazy forcing of test order
+    def test_1_create_customer(self):
+        rv = o.create_customer(self.customer_id, "stripe2@yahoo.com",  external_customer_id=self.external_customer_id, shipping_address={
+                               "city": "string", "country": "US", "line1": "1234 main st", "line2": "string", "postal_code": "string", "state": "string"})
+        data_res = rv[1]
+        CustomerSubscriptionTests.customer_id = data_res['id']
+        self.assertEqual(True, rv[0])
+
+    def test_2_create_subscription(self):
+        rv = o.create_subscription(self.customer_id, "eaBB93GA6isQZjoX",  "2022-12-01")
+        data_res = rv[1]
+        CustomerSubscriptionTests.subscription_id = data_res['id']
+        self.assertEqual(True, rv[0])
+
+    @unittest.expectedFailure
+    def test_3_retrieve_upcoming(self):
+        rv = o.retrieve_upcoming(CustomerSubscriptionTests.subscription_id)
+        self.assertEqual(True, rv[0])
+    
+    def test_4_cancel_subscription(self):
+        rv = o.cancel_subscription(CustomerSubscriptionTests.subscription_id, "immediate")
+        self.assertEqual(True, rv[0])
+    
+
+def run_tests():
+    test_classes = [TestOrb, CustomerSubscriptionTests]
+    #test_classes = [CustomerSubscriptionTests]
+
+    loader = unittest.TestLoader()
+    suites_list = []
+    for c in test_classes:
+        suite = loader.loadTestsFromTestCase(c)
+        suites_list.append(suite)
+    big_suite = unittest.TestSuite(suites_list)
+    runner = unittest.TextTestRunner()
+    results = runner.run(big_suite)
+    print(results)
 
 if __name__ == '__main__':
-    pass
-    unittest.main()
+    run_tests()

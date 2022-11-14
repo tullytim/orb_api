@@ -16,6 +16,7 @@ import datetime
 import json
 import uuid
 import requests
+from termcolor import colored
 
 
 class Orb:
@@ -201,22 +202,31 @@ class Orb:
         return True if self.api_key == other.api_key else False
 
 # Start Internal
+    def __http_term_colored(self, code):
+        if (code >= 200 and code < 300):
+            return colored(code, 'green')
+        return colored(code, 'red')
+
     def __builduri(self, endpoint):
         return "".join([self.endpoint_url, endpoint, "?debug=true" if self.debug == True else ""])
 
     def __docall(self, endpoint, payload, http_verb='post'):
         uri = self.__builduri(endpoint)
-        if self.debug: print(f"URI: {uri}") 
+        if self.debug:
+            print(f"URI: {uri}")
         jsonblob = json.dumps(payload)
-        if self.debug: print(f"HTTP Verb: {http_verb}, Payload:, {jsonblob}")
+        if self.debug:
+            print(f"HTTP Verb: {http_verb}, Payload:, {jsonblob}")
         headers = {'Content-Type': 'application/json',
                    'Authorization': 'Bearer ' + self.api_key}
         response = requests.request(http_verb, uri,
                                     headers=headers,
                                     data=jsonblob
                                     )
-        if self.debug: print(f"Got {response.status_code}: {response.content}")
-        return json.loads(response.content)
+        if self.debug:
+            print(
+                f"Got {self.__http_term_colored(response.status_code)}: {response.content}")
+        return (response.status_code == 200, json.loads(response.content), response.status_code)
 
     def __repr__(self):
         return f"Orb(\"{self.api_key}\", {self.debug})"

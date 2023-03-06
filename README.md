@@ -7,7 +7,8 @@
 
 orb_api is a simple [Orb](https://www.withorb.com) API for all of the CRUD operations in the orb product.
 ## Not For Production
-This API was a gift for the team before we finallt wound uo investing.  the API works great and is fantastic for testing Orb, but this js not the official API or meant for production. 
+This API was a gift for the team before we finally wound up investing.  The API works great and is fantastic for testing Orb, but this is not the official API or meant for production. 
+definitely contact the team for an official API, which they may have.
 ## Installation
 Package coming w/ pip install capabilities.
 
